@@ -368,23 +368,28 @@ def assemble_hexagram(values, question="", dt=None):
 # ============================================================
 # 输出
 # ============================================================
+POS_NAMES = ['初爻', '二爻', '三爻', '四爻', '五爻', '上爻']
+
 def format_bian_gua_board(result):
-    """变卦排盘（动爻变化后的卦）；无动爻（不变卦）时返回空列表。"""
+    """变卦排盘（动爻变化后的卦），全表格式（与本卦同构）；无动爻时返回空列表。"""
     if not result.get('变卦') or not result.get('变卦详情'):
         return []
     bd = result['变卦详情']
+    binfo = HEXAGRAM_DB.get(bd['卦名'], {})
+    b_shi = binfo.get('世位')
+    b_ying = binfo.get('应位')
     lines = []
     lines.append("")
-    lines.append(f"  变卦: {bd['卦名']} ({bd['宫']}宫{bd['五行']})  —  动爻变化所成")
+    lines.append(f"  变卦: {bd['卦名']} ({bd['宫']}宫{bd['五行']})")
     lines.append("")
-    lines.append(f"  {'爻位':<5} {'六亲':<5} {'干支':<5} {'五行':<3}  变化")
-    lines.append("  " + "-" * 42)
-    for i, y in enumerate(bd['爻象']):
-        pos = ['初爻', '二爻', '三爻', '四爻', '五爻', '上爻'][i]
+    lines.append(f"  {'爻位':<5} {'六神':<5} {'六亲':<5} {'干支':<5} {'五行':<3} {'世应':<2}  卦象")
+    lines.append("  " + "-" * 50)
+    for y in reversed(bd['爻象']):
+        i = y['位置']
         gc = y['天干'] + y['地支']
-        changed = i in result['动爻位']
-        change_str = "阴→阳(动变)" if changed else "不变"
-        lines.append(f"  {pos:<5} {y['六亲']:<5} {gc:<5} {y['五行']:<3}  {change_str}")
+        symbol = '━━━' if y['阴阳'] == 1 else '━ ━'
+        sy = '世' if i == b_shi else ('应' if i == b_ying else '')
+        lines.append(f"  {POS_NAMES[i]:<5} {result['爻象'][i]['六神']:<5} {y['六亲']:<5} {gc:<5} {y['五行']:<3} {sy:<2}  {symbol}")
     return lines
 
 
@@ -412,7 +417,7 @@ def format_hexagram_brief(result):
         if yao['爻值'] == 9: symbol = '━━○'
         elif yao['爻值'] == 6: symbol = '━×━'
         mark = ' '.join(yao['标记'])
-        lines.append(f"  {yao['六神']:<5} {yao['六亲']:<5} {gc:<5} {yao['五行']:<3} {yao['世应']:<2}  {symbol}  {mark}")
+        lines.append(f"  {yao['爻位名']:<5} {yao['六神']:<5} {yao['六亲']:<5} {gc:<5} {yao['五行']:<3} {yao['世应']:<2}  {symbol}  {mark}")
     lines.append("")
 
     shi = result['爻象'][result['世位']]
@@ -644,7 +649,7 @@ def format_hexagram(result):
         if yao['爻值'] == 9: symbol = '━━○'
         elif yao['爻值'] == 6: symbol = '━×━'
         mark = ' '.join(yao['标记'])
-        lines.append(f"  {yao['六神']:<5} {yao['六亲']:<5} {gc:<5} {yao['五行']:<3} {yao['世应']:<2}  {symbol}  {mark}")
+        lines.append(f"  {yao['爻位名']:<5} {yao['六神']:<5} {yao['六亲']:<5} {gc:<5} {yao['五行']:<3} {yao['世应']:<2}  {symbol}  {mark}")
     lines.append("")
 
     lines += format_bian_gua_board(result)
