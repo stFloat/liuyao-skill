@@ -36,9 +36,10 @@ except ImportError:
 # 八卦基础数据
 # ============================================================
 
+# 八卦编码：(初爻, 二爻, 三爻)，阳=1 阴=0（自下而上）
 BAGUA = {
-    '乾': (1, 1, 1), '兑': (0, 1, 1), '离': (1, 0, 1), '震': (0, 0, 1),
-    '巽': (1, 1, 0), '坎': (0, 1, 0), '艮': (1, 0, 0), '坤': (0, 0, 0),
+    '乾': (1, 1, 1), '兑': (1, 1, 0), '离': (1, 0, 1), '震': (1, 0, 0),
+    '巽': (0, 1, 1), '坎': (0, 1, 0), '艮': (0, 0, 1), '坤': (0, 0, 0),
 }
 
 BAGUA_WUXING = {
@@ -59,7 +60,7 @@ NAYUE_DIZHI_INNER = {  # 内卦地支 (初爻→三爻)
     '乾': ['子', '寅', '辰'],
     '震': ['子', '寅', '辰'],
     '坎': ['寅', '辰', '午'],
-    '艮': ['辰', '午', '申'],
+    '艮': ['辰', '寅', '子'],
     '坤': ['未', '巳', '卯'],
     '巽': ['丑', '亥', '酉'],
     '离': ['卯', '丑', '亥'],
@@ -70,7 +71,7 @@ NAYUE_DIZHI_OUTER = {  # 外卦地支 (四爻→上爻)
     '乾': ['午', '申', '戌'],
     '震': ['午', '申', '戌'],
     '坎': ['申', '戌', '子'],
-    '艮': ['戌', '子', '寅'],
+    '艮': ['戌', '申', '午'],
     '坤': ['丑', '亥', '酉'],
     '巽': ['未', '巳', '卯'],
     '离': ['酉', '未', '巳'],
@@ -138,20 +139,41 @@ PALACE_CHART = {
     },
 }
 
-# 构建快速查找表
+# 构建快速查找表（京房八宫：本宫→一世…五世→游魂→归魂，按爻变推导上下卦）
+BAGUA_INV = {v: k for k, v in BAGUA.items()}
+PALACE_ORDER = ['乾', '兑', '离', '震', '巽', '坎', '艮', '坤']
+# 各世应爻位（初=0 … 上=5）：本宫世在五(上)爻
+SHI_POS = [5, 0, 1, 2, 3, 4, 3, 2]
+GUIA_TYPE = ['本宫', '一世', '二世', '三世', '四世', '五世', '游魂', '归魂']
+# 相对本宫所变之爻（初爻=0 … 五爻=4，上爻不变）
+GEN_CHANGES = [
+    [],            # 本宫
+    [0],           # 一世：初爻变
+    [0, 1],        # 二世：初、二爻变
+    [0, 1, 2],     # 三世：初、二、三爻变
+    [0, 1, 2, 3],  # 四世：初、二、三、四爻变
+    [0, 1, 2, 3, 4],  # 五世：初至五爻变
+    [0, 1, 2, 4],  # 游魂：五世退四爻（ revert index 3）
+    [4],           # 归魂：游魂变三爻（即仅五爻变）
+]
+
 HEXAGRAM_DB = {}
-for palace_name, palace_info in PALACE_CHART.items():
-    palace_wx = palace_info['五行']
-    for i, gua_name in enumerate(palace_info['卦序']):
-        # 上下卦元组为 (下卦, 上卦)，按此赋值到 xia / shang
-        xia, shang = palace_info['上下卦'][i]
-        shi_pos = palace_info['世位'][i]
+for palace_name in PALACE_ORDER:
+    palace_wx = PALACE_CHART[palace_name]['五行']
+    seq = PALACE_CHART[palace_name]['卦序']
+    pure = list(BAGUA[palace_name]) + list(BAGUA[palace_name])
+    for i, gua_name in enumerate(seq):
+        bin6 = list(pure)
+        for idx in GEN_CHANGES[i]:
+            bin6[idx] = 1 - bin6[idx]
+        xia = BAGUA_INV[tuple(bin6[0:3])]
+        shang = BAGUA_INV[tuple(bin6[3:6])]
+        shi_pos = SHI_POS[i]
         ying_pos = (shi_pos + 3) % 6
-        shi_yao_type = '本宫' if i == 0 else ['一世','二世','三世','四世','五世','游魂','归魂'][i-1]
         HEXAGRAM_DB[gua_name] = {
             '宫': palace_name, '五行': palace_wx,
             '上卦': shang, '下卦': xia,
-            '世位': shi_pos, '应位': ying_pos, '卦型': shi_yao_type,
+            '世位': shi_pos, '应位': ying_pos, '卦型': GUIA_TYPE[i],
         }
 
 # ============================================================
@@ -346,6 +368,26 @@ def assemble_hexagram(values, question="", dt=None):
 # ============================================================
 # 输出
 # ============================================================
+def format_bian_gua_board(result):
+    """变卦排盘（动爻变化后的卦）；无动爻（不变卦）时返回空列表。"""
+    if not result.get('变卦') or not result.get('变卦详情'):
+        return []
+    bd = result['变卦详情']
+    lines = []
+    lines.append("")
+    lines.append(f"  变卦: {bd['卦名']} ({bd['宫']}宫{bd['五行']})  —  动爻变化所成")
+    lines.append("")
+    lines.append(f"  {'爻位':<5} {'六亲':<5} {'干支':<5} {'五行':<3}  变化")
+    lines.append("  " + "-" * 42)
+    for i, y in enumerate(bd['爻象']):
+        pos = ['初爻', '二爻', '三爻', '四爻', '五爻', '上爻'][i]
+        gc = y['天干'] + y['地支']
+        changed = i in result['动爻位']
+        change_str = "阴→阳(动变)" if changed else "不变"
+        lines.append(f"  {pos:<5} {y['六亲']:<5} {gc:<5} {y['五行']:<3}  {change_str}")
+    return lines
+
+
 def format_hexagram_brief(result):
     """简略排盘（默认）"""
     if 'error' in result: return f"错误: {result['error']}"
@@ -389,6 +431,8 @@ def format_hexagram_brief(result):
             f"{['初','二','三','四','五','上'][i]}爻({result['爻象'][i]['六亲']}{result['爻象'][i]['地支']})"
             for i in result['动爻位']
         ))
+
+    lines += format_bian_gua_board(result)
 
     lines.append("=" * 52)
     return "\n".join(lines)
@@ -602,6 +646,8 @@ def format_hexagram(result):
         mark = ' '.join(yao['标记'])
         lines.append(f"  {yao['六神']:<5} {yao['六亲']:<5} {gc:<5} {yao['五行']:<3} {yao['世应']:<2}  {symbol}  {mark}")
     lines.append("")
+
+    lines += format_bian_gua_board(result)
 
     lines.append("  【世应关系】")
     rel = wuxing_relation(shi['五行'], ying['五行'])
