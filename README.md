@@ -6,7 +6,10 @@
 - 排盘引擎移植自 [baiyanwu/liuyao-skill](https://github.com/baiyanwu/liuyao-skill)（MIT），干支与节气由 [sxtwl（寿星天文历）](https://github.com/yuangu/sxtwl_cpp) 精确计算。
 
 - 排盘引擎：`scripts/liuyao.py`（移植自 [baiyanwu/liuyao-skill](https://github.com/baiyanwu/liuyao-skill)，MIT License）。干支与节气由 [sxtwl（寿星天文历）](https://github.com/yuangu/sxtwl_cpp) 精确计算，需先 `pip install sxtwl`。
-- 断卦方法论：`references/liuyao_method.md`（本技能基于《增删卜易》《卜筮正宗》等公版经典自研）
+- 断卦方法论（三份配套文档，详见下方「方法论文档」）：
+  - `references/liuyao_method.md` — **操作指南（主）**：取用神→旺衰→动静生克→世应→六神→趋势化断语，含 §3.1 刑冲合害铁律
+  - `references/liuyao_basis.md` — **基础讲义**：阴阳/八卦/五行/六亲/用神/动静/进退/月日/暗动/化废/伏反吟理论底稿
+  - `references/liuyao_xinghui.md` — **刑合会象义字典**：三刑/六合/三合/三会取象（六合已校正：子丑/寅亥/卯戌/辰酉/巳申/午未）
 - 适配协议：Agent Skills（`SKILL.md` 含 `name` + `description`，opencode 自动发现）
 
 ## 功能
@@ -40,12 +43,27 @@
 你的项目/.opencode/skills/liuyao-najia/
 ├── SKILL.md
 ├── scripts/liuyao.py
-├── references/liuyao_method.md
+├── references/
+│   ├── liuyao_method.md      # 操作指南（主）
+│   ├── liuyao_basis.md       # 基础讲义
+│   └── liuyao_xinghui.md     # 刑合会象义字典
 ├── README.md
 └── LICENSE
 ```
 
 opencode 启动时会自动扫描 `.opencode/skills/**/SKILL.md` 并注册本技能。
+
+## 方法论文档
+
+断卦不靠模型临场发挥，全部依据 `references/` 下三份文档，按固定顺序解读：
+
+| 文档 | 角色 | 内容 |
+|------|------|------|
+| `liuyao_method.md` | **操作指南（主）** | 取用神表 → 旺衰（月建/日辰/空亡/月破）→ 动静生克 → 世应 → 六神 → 趋势化断语；含 §3.1 刑冲合害铁律、归墟/云派变爻作用法、应期思路 |
+| `liuyao_basis.md` | 基础讲义 | 阴阳、八卦取象、五行天干地支、六亲、用神章、动静/回头生克/动动相连、进退神、月建+日辰量化、暗动、动爻化废、伏吟反吟 |
+| `liuyao_xinghui.md` | 象义字典 | 三刑（子卯/寅巳申/丑未戌/辰午酉亥自刑）、六合（子丑/寅亥/卯戌/辰酉/巳申/午未）、三合局、三会方取象 |
+
+> 引擎 `scripts/liuyao.py` 只算排盘（确定性算法），**不计算任何旺衰/状态评分**；所有「读法」只在上述文档中描述。
 
 ## 触发
 
@@ -73,7 +91,7 @@ python scripts/liuyao.py --seed 42 -q "测试" --no-save
 python scripts/liuyao.py -q "测投资" --json --no-save
 ```
 
-在 AI 对话中，技能会先问清「所问何事」并让你选起卦方式，跑脚本算出排盘后，再按 `references/liuyao_method.md` 给**带依据的趋势化解读**。
+在 AI 对话中，技能会先问清「所问何事」并让你选起卦方式，跑脚本算出排盘后，再按 `references/` 下的方法论（以 `liuyao_method.md` 为主，辅以 `liuyao_basis.md` 理论底稿与 `liuyao_xinghui.md` 象义字典）给**带依据的趋势化解读**。
 
 ### 爻值说明
 

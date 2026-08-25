@@ -14,7 +14,7 @@ description: |
 本技能分两层，**顺序不可乱**：
 
 - **第一层（脚本算，确定性）**：运行 `scripts/liuyao.py`，把起卦、纳甲、六亲、六神、世应、空亡、月破、变卦全部算准，**绝不靠模型手推**。
-- **第二层（AI 解读，方法论）**：拿到脚本输出的排盘后，严格按 `references/liuyao_method.md` 断卦——定用神→看旺衰→看动变生克→看世应→综合趋势化断语，每条结论标注依据。
+- **第二层（AI 解读，方法论）**：拿到脚本输出的排盘后，严格按 `references/` 下的方法论断卦（以 `liuyao_method.md` 为主，辅以 `liuyao_basis.md` 理论底稿与 `liuyao_xinghui.md` 象义字典）——定用神→看旺衰→看动变生克→看世应→综合趋势化断语，每条结论标注依据。
 
 脚本与排盘源自 baiyanwu/liuyao-skill（MIT License），断卦方法论为本技能自研（依据《增删卜易》《卜筮正宗》等公版经典）。干支与节气由 sxtwl（寿星天文历，pip install sxtwl）精确计算。
 
@@ -61,7 +61,7 @@ python scripts/liuyao.py -q "测投资" --json --no-save
    - 这件事具体是什么、目前进展到哪一步？
    - 你最想知道什么（能不能成 / 何时成 / 该怎么选）？
    - 有没有关键人物或时间节点？
-3. 根据用户补充的细节，在 `references/liuyao_method.md` 中定位正确的用神，再进入解读。
+3. 根据用户补充的细节，在 `references/liuyao_method.md` 的取用神表中定位正确的用神，再进入解读。
 
 ### 第四阶段：按方法论动态断卦
 - 严格按 `references/liuyao_method.md` 的顺序：定用神 → 用神旺衰（月建日辰生克、空亡、月破）→ 动爻变爻生克 → 世应关系 → 六神修饰 → 综合趋势化断语。爻际作用与刑冲合害须遵循该文档第三节（含 3.1 刑冲合害铁律、归墟/云派变爻作用法）：本卦静爻一般不参与刑冲合害；刑只看象不看吉凶；冲合最常用、害少用；变爻作用默认归墟法（变爻作用于动爻，变卦静爻/本卦静爻不参与，变爻与动爻无作用时才可作用于本卦爻）。
@@ -86,5 +86,5 @@ python scripts/liuyao.py -q "测投资" --json --no-save
 ## 数据来源与许可
 - 排盘脚本 `scripts/liuyao.py`：移植自 [baiyanwu/liuyao-skill](https://github.com/baiyanwu/liuyao-skill)，采用 **MIT License**，原版权声明见 `LICENSE`。
 - 纳甲规则遵循传统京房易传；八宫体系参考惠栋《易汉学》八宫卦次图。
-- 断卦方法论（`references/liuyao_method.md`）：本技能基于《增删卜易》《卜筮正宗》等公版经典自研整理，不复制任何 NonCommercial 授权内容。
+- 断卦方法论（`references/`，以 `liuyao_method.md` 为主、配 `liuyao_basis.md` 与 `liuyao_xinghui.md`）：本技能基于《增删卜易》《卜筮正宗》等公版经典自研整理，不复制任何 NonCommercial 授权内容。
 - 干支与节气由 sxtwl（寿星天文历）精确计算，月建按节气划分、日干支按天文历推算，不再使用近似基准。节气交接时刻前后按日期近似处理。
