@@ -353,7 +353,7 @@ def assemble_hexagram(values, question="", dt=None):
             else:
                 dz = NAYUE_DIZHI_OUTER[gua][i - 3]
             wx = DIZHI_WUXING[dz]
-            bian_yaos.append({'位置': i, '天干': tg, '地支': dz, '五行': wx, '六亲': get_liuqin(wx, bd['五行']), '阴阳': bianyinyang[i]})
+            bian_yaos.append({'位置': i, '天干': tg, '地支': dz, '五行': wx, '六亲': get_liuqin(wx, palace_wx), '阴阳': bianyinyang[i]})
         bian_info = {'卦名': bian_gua, '宫': bd['宫'], '五行': bd['五行'], '爻象': bian_yaos}
 
     return {
