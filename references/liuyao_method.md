@@ -2,7 +2,7 @@
 
 > 本文件供 AI 在拿到 `scripts/liuyao.py` 的排盘结果后，按固定顺序解读使用。
 > 依据《增删卜易》《卜筮正宗》等公版经典整理。先定用神，再看旺衰，后看动静生克，最后综合趋势化断语。**每条结论必须标注依据**（出自哪一爻的六亲/六神/生克）。
-> 配套参考：基础理论体系（阴阳/八卦/五行/六亲/用神/动静/进退/月日/暗动/化废/伏反吟）见 `references/liuyao_basis.md`；刑合会象义字典见 `references/liuyao_xinghui.md`。
+> 配套参考：基础理论体系（阴阳/八卦/五行/六亲/用神/动静/进退/月日/暗动/化废/伏反吟）见 `references/liuyao_basis.md`；刑合会象义字典见 `references/liuyao_xinghui.md`；财运/求财专项读法（财星与世关联、子孙财源、兄弟劫财、父母本金、官鬼护航）见 `references/liuyao_caiyun.md`。
 
 ---
 
